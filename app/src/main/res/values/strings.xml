@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">BlusQ</string>
+    <string name="dark_mode">Dark Mode</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="upcoming">Upcoming</string>
+    <string name="finish">Finish</string>
+    <string name="favorite">Favorite</string>
+    <string name="setting">Setting</string>
+
+    <string name="title_upcoming">Upcoming Event</string>
+    <string name="title_finish">Finish Event</string>
+    <string name="title_favorite">Favorite Event</string>
+    <string name="subtitle_favorite">Recommendation event for you!</string>
+    <string name="title_setting">Setting</string>
+
+    <string name="title">Title</string>
+    <string name="subtitle">Subtitle</string>
+
+    <string name="set_mode">Dark Mode</string>
+
+    <string name="name">Nama</string>
+    <string name="summary">Ringkasan</string>
+    <string name="description">Deskripsi</string>
+    <string name="category">Seminar</string>
+    <string name="ownerName">Indosat Ooredoo Hutchison Digital Camp</string>
+    <string name="cityName">Online</string>
+    <string name="qouta">1500</string>
+    <string name="registrants">566</string>
+    <string name="beginTime">2026–04-01 19:00:00</string>
+    <string name="endTime">2026–04-01 20:30:00</string>
+    <string name="link">https://www.dicoding.com/events/9581</string>
+
+    <string name="register">Register</string>
+
+    <string name="search_hint">Search</string>
+
+</resources>
