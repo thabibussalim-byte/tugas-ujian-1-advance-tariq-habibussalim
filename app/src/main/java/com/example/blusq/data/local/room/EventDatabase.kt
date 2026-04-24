@@ -21,7 +21,7 @@ abstract class EventDatabase : RoomDatabase(){
                     EventDatabase::class.java,
                     "Event.db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(false)
                     .build()
                 INSTANCE = instance
                 instance
