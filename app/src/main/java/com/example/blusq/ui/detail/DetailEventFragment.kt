@@ -1,7 +1,7 @@
 package com.example.blusq.ui.detail
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +15,7 @@ import com.example.blusq.data.local.entity.EventEntity
 import com.example.blusq.databinding.FragmentDetailEventBinding
 import com.example.blusq.ui.ViewModelFactory
 import com.example.blusq.ui.main.MainViewModel
+import androidx.core.net.toUri
 
 class DetailEventFragment : Fragment() {
 
@@ -46,6 +47,7 @@ class DetailEventFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun displayEventDetail(event: EventEntity) {
         with(binding) {
             tvName.text = event.name
@@ -70,7 +72,7 @@ class DetailEventFragment : Fragment() {
                 .into(ivCover)
 
             btnRegister.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(event.link))
+                val intent = Intent(Intent.ACTION_VIEW, event.link?.toUri())
                 startActivity(intent)
             }
         }
@@ -88,7 +90,6 @@ class DetailEventFragment : Fragment() {
             viewModel.setFavoriteEvent(event.id, !isFavorite)
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

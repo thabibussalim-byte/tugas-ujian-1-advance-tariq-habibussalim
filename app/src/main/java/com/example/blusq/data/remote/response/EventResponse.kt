@@ -1,7 +1,6 @@
 package com.example.blusq.data.remote.response
 
 
-import android.provider.ContactsContract
 import com.google.gson.annotations.SerializedName
 
 data class EventResponse(
@@ -59,15 +58,4 @@ data class ListEventsItem(
 
 	@field:SerializedName("category")
 	val category: String? = null
-)
-
-data class DetailEventResponse(
-	@field:SerializedName("error")
-	val error: Boolean? = null,
-
-	@field:SerializedName("message")
-	val message: String? = null,
-
-	@field:SerializedName("event")
-	val event: ListEventsItem? = null
 )

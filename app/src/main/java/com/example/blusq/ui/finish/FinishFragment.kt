@@ -5,10 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.blusq.R
@@ -39,15 +37,11 @@ class FinishFragment : Fragment() {
 
         val eventAdapter = EventAdapter { event ->
             val eventId = event.id
-            if (eventId != null) {
-                val bundle = Bundle().apply {
-                    putInt("eventId", eventId)
-                }
-                findNavController()
-                    .navigate(R.id.action_finishFragment_to_detailEventFragment, bundle)
-            } else {
-                Toast.makeText(requireContext(), "ID Event tidak valid", Toast.LENGTH_SHORT).show()
+            val bundle = Bundle().apply {
+                putInt("eventId", eventId)
             }
+            findNavController()
+                .navigate(R.id.action_finishFragment_to_detailEventFragment, bundle)
         }
 
         binding.rvFinish.apply {

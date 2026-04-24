@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BlusQ"
+rootProject.name = "EventDicoding"
 include(":app")
  

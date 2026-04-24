@@ -2,14 +2,13 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.devtools.ksp)
+    alias(libs.plugins.navigation.safeargs)
     id("kotlin-parcelize")
 }
 
 android {
     namespace = "com.example.blusq"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.blusq"
@@ -71,4 +70,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.android.async.http)
 }

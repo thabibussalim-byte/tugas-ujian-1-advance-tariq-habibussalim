@@ -1,14 +1,14 @@
 package com.example.blusq.ui.main
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.SearchView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.lifecycle.LifecycleOwner
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -17,20 +17,38 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.example.blusq.R
-import com.example.blusq.data.local.room.EventDao
 import com.example.blusq.databinding.ActivityMainBinding
 import com.example.blusq.di.Injection
 import com.example.blusq.ui.SettingPreferences
 import com.example.blusq.ui.ViewModelFactory
 import com.example.blusq.ui.dataStore
+import com.example.blusq.ui.search.SearchViewModel
+import com.example.blusq.ui.setting.DailyReminderWorker
+import java.util.concurrent.TimeUnit
 
 
-class MainActivity (): AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var searchViewModel: SearchViewModel
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Toast.makeText(this, "Notifications permission granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Notifications permission rejected", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +58,13 @@ class MainActivity (): AppCompatActivity() {
         setupNavigationUI()
         setupAppBarConfiguration()
         setupTheme()
+        setupDailyReminder()
+        setupNotificationPermission()
+        setupSearch()
 
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             setupActionBarTitleAndSubtitle(destination)
@@ -107,6 +130,60 @@ class MainActivity (): AppCompatActivity() {
 
     }
 
+    private fun setupSearch() {
+        val pref = SettingPreferences.getInstance(dataStore)
+        val eventRepository = Injection.provideRepository(this)
+        val factory = ViewModelFactory(pref, eventRepository)
+        searchViewModel = ViewModelProvider(this, factory)[SearchViewModel::class.java]
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrBlank()) {
+                    searchViewModel.setQuery(query)
+                    if (navController.currentDestination?.id != R.id.searchFragment) {
+                        navController.navigate(R.id.searchFragment)
+                    }
+                    binding.searchView.clearFocus()
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+    }
+
+    private fun setupNotificationPermission(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val isGranted = checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
+                    android.content.pm.PackageManager.PERMISSION_GRANTED
+            if (!isGranted) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+    private fun setupDailyReminder() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val periodicWorkRequest = PeriodicWorkRequest.Builder(
+            DailyReminderWorker::class.java,
+            1, TimeUnit.DAYS
+        )
+            .setConstraints(constraints)
+            .addTag(DAILY_REMINDER_TAG)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            DAILY_REMINDER_TAG,
+            androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+            periodicWorkRequest
+        )
+    }
+
 
     private fun setupTheme() {
         val pref = SettingPreferences.getInstance(dataStore)
@@ -169,5 +246,8 @@ class MainActivity (): AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean{
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
-}
 
+    companion object {
+        private const val DAILY_REMINDER_TAG = "daily_reminder"
+    }
+}

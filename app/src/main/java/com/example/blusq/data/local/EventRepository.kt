@@ -5,6 +5,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import com.example.blusq.data.local.entity.EventEntity
 import com.example.blusq.data.local.room.EventDao
+import com.example.blusq.data.remote.response.ListEventsItem
 import com.example.blusq.data.remote.retrofit.ApiService
 import kotlinx.coroutines.Dispatchers
 
@@ -103,6 +104,46 @@ class EventRepository private constructor(
         if (event != null) {
             event.isFavorite = favoriteState
             eventDao.updateEvent(event)
+        }
+    }
+
+    suspend fun getLatestEvent(): ListEventsItem? {
+        return try {
+            val response = apiService.getLatestEvent()
+            response.listEvents?.firstOrNull()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun searchEvents(query: String): LiveData<Result<List<EventEntity>>> = liveData(Dispatchers.IO) {
+        emit(Result.Loading)
+        try {
+            val response = apiService.searchEvents(query = query)
+            val events = response.listEvents
+            val eventList = events?.filterNotNull()?.map {
+                EventEntity(
+                    id = it.id ?: 0,
+                    name = it.name,
+                    summary = it.summary,
+                    ownerName = it.ownerName,
+                    cityName = it.cityName,
+                    beginTime = it.beginTime,
+                    endTime = it.endTime,
+                    category = it.category,
+                    imageLogo = it.imageLogo,
+                    mediaCover = it.mediaCover,
+                    link = it.link,
+                    description = it.description,
+                    registrants = it.registrants,
+                    quota = it.quota,
+                    isFavorite = false,
+                    isFinished = false
+                )
+            } ?: emptyList()
+            emit(Result.Success(eventList))
+        } catch (e: Exception) {
+            emit(Result.Error(e.message.toString()))
         }
     }
 

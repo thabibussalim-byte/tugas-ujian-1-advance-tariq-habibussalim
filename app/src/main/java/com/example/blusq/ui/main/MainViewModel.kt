@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.blusq.data.local.EventRepository
-import com.example.blusq.data.local.entity.EventEntity
 import com.example.blusq.ui.SettingPreferences
 import kotlinx.coroutines.launch
 
@@ -21,21 +20,27 @@ class MainViewModel(private val pref: SettingPreferences, private val eventRepos
         }
     }
 
+    fun getNotifSettings(): LiveData<Boolean> {
+        return pref.getNotifSetting().asLiveData()
+    }
+
+    fun saveNotifSetting(isNotifActive: Boolean) {
+        viewModelScope.launch {
+            pref.saveNotifSetting(isNotifActive)
+        }
+    }
+
     fun getUpcomingEvents() = eventRepository.getUpcomingEvents()
 
     fun getFinishedEvents() = eventRepository.getFinishedEvents()
 
     fun getFavoriteEvents() = eventRepository.getFavoriteEvents()
 
-    fun getEventById(id: Int): LiveData<EventEntity> {
-        return eventRepository.getEventById(id)
-    }
-
+    fun getEventById(id: Int) = eventRepository.getEventById(id)
 
     fun setFavoriteEvent(id: Int, favoriteState: Boolean) {
         viewModelScope.launch {
             eventRepository.setFavoriteEvent(id, favoriteState)
         }
     }
-
 }

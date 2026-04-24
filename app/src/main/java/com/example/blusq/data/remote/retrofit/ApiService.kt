@@ -1,9 +1,7 @@
 package com.example.blusq.data.remote.retrofit
 
-import com.example.blusq.data.remote.response.DetailEventResponse
 import com.example.blusq.data.remote.response.EventResponse
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -15,13 +13,10 @@ interface ApiService {
 
     @GET("events")
     suspend fun searchEvents(
-        @Query("q") keyword: String,
-        @Query("active") active: Int
+        @Query("active") active: Int = -1,
+        @Query("q") query: String
     ): EventResponse
 
-
-    @GET("events/{id}")
-    suspend fun getDetailEvent(
-        @Path("id") id: String
-    ): DetailEventResponse
+    @GET("events?active=-1&limit=1")
+    suspend fun getLatestEvent(): EventResponse
 }

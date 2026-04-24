@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.blusq.data.local.EventRepository
 import com.example.blusq.di.Injection
 import com.example.blusq.ui.main.MainViewModel
+import com.example.blusq.ui.search.SearchViewModel
 
 class ViewModelFactory(private val pref: SettingPreferences, private val eventRepository: EventRepository) :
     ViewModelProvider.NewInstanceFactory() {
@@ -14,6 +15,9 @@ class ViewModelFactory(private val pref: SettingPreferences, private val eventRe
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             return MainViewModel(pref,eventRepository) as T
+        }
+        if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
+            return SearchViewModel(eventRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
     }
